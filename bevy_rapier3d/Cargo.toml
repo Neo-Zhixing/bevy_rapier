@@ -18,19 +18,9 @@ path = "../src/lib.rs"
 required-features = ["dim3"]
 
 [features]
-default = ["dim3", "async-collider", "debug-render-3d"]
+default = ["dim3", "async-collider"]
 dim3 = []
-debug-render = ["debug-render-3d"]
-debug-render-2d = [
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_sprite",
-    "bevy/bevy_gizmos",
-    "rapier3d/debug-render",
-    "bevy/bevy_asset",
-]
-debug-render-3d = [
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_pbr",
+debug-render = [
     "bevy/bevy_gizmos",
     "rapier3d/debug-render",
     "bevy/bevy_asset",
@@ -67,7 +57,7 @@ bevy_rapier_benches3d = { version = "0.1", path = "../bevy_rapier_benches3d" }
 
 [package.metadata.docs.rs]
 # Enable all the features when building the docs on docs.rs
-features = ["debug-render-3d", "serde-serialize"]
+features = ["debug-render", "serde-serialize"]
 
 [[bench]]
 name = "cubes"

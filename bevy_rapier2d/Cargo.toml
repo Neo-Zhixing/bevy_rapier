@@ -18,18 +18,9 @@ path = "../src/lib.rs"
 required-features = ["dim2"]
 
 [features]
-default = ["dim2", "async-collider", "debug-render-2d"]
+default = ["dim2", "async-collider", "debug-render"]
 dim2 = []
-debug-render-2d = [
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_sprite",
-    "bevy/bevy_gizmos",
-    "rapier2d/debug-render",
-    "bevy/bevy_asset",
-]
-debug-render-3d = [
-    "bevy/bevy_core_pipeline",
-    "bevy/bevy_pbr",
+debug-render = [
     "bevy/bevy_gizmos",
     "rapier2d/debug-render",
     "bevy/bevy_asset",

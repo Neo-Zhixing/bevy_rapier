@@ -1,6 +1,7 @@
 use bevy::prelude::*;
+use rapier::parry::query::PersistentQueryDispatcher;
 use std::collections::HashMap;
-use std::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 use rapier::prelude::{
     CCDSolver, ColliderHandle, ColliderSet, EventHandler, FeatureId, ImpulseJointHandle,
@@ -20,7 +21,7 @@ use crate::parry::query::details::ShapeCastOptions;
 use crate::plugin::configuration::{SimulationToRenderTime, TimestepMode};
 use crate::prelude::{CollisionGroups, RapierRigidBodyHandle};
 use rapier::control::CharacterAutostep;
-use rapier::geometry::DefaultBroadPhase;
+use rapier::geometry::{ContactData, ContactManifoldData, DefaultBroadPhase};
 
 #[cfg(doc)]
 use crate::prelude::{ImpulseJoint, MultibodyJoint, RevoluteJoint, TypedJoint};

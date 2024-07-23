@@ -60,7 +60,7 @@ pub mod plugin;
 /// Components related to character control.
 pub mod control;
 /// The debug-renderer.
-#[cfg(any(feature = "debug-render-3d", feature = "debug-render-2d"))]
+#[cfg(feature = "debug-render")]
 pub mod render;
 /// Miscellaneous helper functions.
 pub mod utils;
@@ -73,6 +73,6 @@ pub mod prelude {
     pub use crate::math::*;
     pub use crate::pipeline::*;
     pub use crate::plugin::*;
-    #[cfg(any(feature = "debug-render-3d", feature = "debug-render-2d"))]
+    #[cfg(feature = "debug-render")]
     pub use crate::render::*;
 }

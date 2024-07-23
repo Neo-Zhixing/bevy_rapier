@@ -8,8 +8,12 @@ use bevy::ecs::{
     system::SystemParamItem,
 };
 use bevy::{prelude::*, transform::TransformSystem};
-use rapier::dynamics::IntegrationParameters;
+use rapier::dynamics::{CCDSolver, IntegrationParameters};
+use rapier::geometry::{ContactData, ContactManifoldData, NarrowPhase};
+use rapier::parry::query::{DefaultQueryDispatcher, PersistentQueryDispatcher, QueryDispatcher};
+use rapier::pipeline::QueryPipeline;
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 /// No specific user-data is associated to the hooks.
 pub type NoUserData = ();
@@ -22,6 +26,9 @@ pub struct RapierPhysicsPlugin<PhysicsHooks = ()> {
     schedule: Interned<dyn ScheduleLabel>,
     length_unit: f32,
     default_system_setup: bool,
+    query_dispatcher: Arc<dyn QueryDispatcher>,
+    // TODO: This can be unified with `query_dispatcher` once the `trait_upcasting` feature stabalizes.
+    narrow_phase_dispatcher: Arc<dyn PersistentQueryDispatcher<ContactManifoldData, ContactData>>,
     _phantom: PhantomData<PhysicsHooks>,
 }
 
@@ -70,6 +77,21 @@ where
     /// Adds the physics systems to the provided schedule rather than `PostUpdate`.
     pub fn in_schedule(mut self, schedule: impl ScheduleLabel) -> Self {
         self.schedule = schedule.intern();
+        self
+    }
+
+    /// Specifies a custom query dispatcher to use for the physics pipeline.
+    pub fn with_query_dispatcher(mut self, query_dispatcher: Arc<dyn QueryDispatcher>) -> Self {
+        self.query_dispatcher = query_dispatcher;
+        self
+    }
+
+    /// Specifies a custom query dispatcher to use for the narrow phase of the physics pipeline.
+    pub fn with_narrow_phase_dispatcher(
+        mut self,
+        query_dispatcher: Arc<dyn PersistentQueryDispatcher<ContactManifoldData, ContactData>>,
+    ) -> Self {
+        self.narrow_phase_dispatcher = query_dispatcher;
         self
     }
 
@@ -129,6 +151,8 @@ impl<PhysicsHooksSystemParam> Default for RapierPhysicsPlugin<PhysicsHooksSystem
             schedule: PostUpdate.intern(),
             length_unit: 1.0,
             default_system_setup: true,
+            query_dispatcher: Arc::new(DefaultQueryDispatcher),
+            narrow_phase_dispatcher: Arc::new(DefaultQueryDispatcher),
             _phantom: PhantomData,
         }
     }
@@ -189,6 +213,11 @@ where
                     length_unit: self.length_unit,
                     ..Default::default()
                 },
+                query_pipeline: QueryPipeline::with_query_dispatcher(self.query_dispatcher.clone()),
+                ccd_solver: CCDSolver::with_query_dispatcher(self.query_dispatcher.clone()),
+                narrow_phase: NarrowPhase::with_query_dispatcher(
+                    self.narrow_phase_dispatcher.clone(),
+                ),
                 ..Default::default()
             })
             .insert_resource(Events::<CollisionEvent>::default())
